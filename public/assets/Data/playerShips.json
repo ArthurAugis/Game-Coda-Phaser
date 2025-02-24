@@ -1,0 +1,14 @@
+{
+  "1": {
+    "movementSpeed": 0.6,
+    "texture": "playerShip2_blue.png"
+  },
+  "2": {
+    "movementSpeed": 0.9,
+    "texture": "playerShip1_blue.png"
+  },
+  "3": {
+    "movementSpeed": 1.2,
+    "texture": "playerShip3_blue.png"
+  }
+}

@@ -1,0 +1,187 @@
+{
+	"textures": [
+		{
+			"image": "texture",
+			"format": "RGBA8888",
+			"size": {
+				"w": 400,
+				"h": 166
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "playerShip2_blue.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 112,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 112,
+						"h": 75
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 112,
+						"h": 75
+					}
+				},
+				{
+					"filename": "playerShip1_blue.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 99,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 99,
+						"h": 75
+					},
+					"frame": {
+						"x": 112,
+						"y": 0,
+						"w": 99,
+						"h": 75
+					}
+				},
+				{
+					"filename": "playerShip3_blue.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 98,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 98,
+						"h": 75
+					},
+					"frame": {
+						"x": 211,
+						"y": 0,
+						"w": 98,
+						"h": 75
+					}
+				},
+				{
+					"filename": "enemy_2.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 309,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "enemy_3.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 0,
+						"y": 75,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "ufoRed.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 91
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 91
+					},
+					"frame": {
+						"x": 91,
+						"y": 75,
+						"w": 91,
+						"h": 91
+					}
+				},
+				{
+					"filename": "laserGreen10.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 13,
+						"h": 54
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 13,
+						"h": 54
+					},
+					"frame": {
+						"x": 182,
+						"y": 75,
+						"w": 13,
+						"h": 54
+					}
+				},
+				{
+					"filename": "laserRed16.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 13,
+						"h": 54
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 13,
+						"h": 54
+					},
+					"frame": {
+						"x": 195,
+						"y": 75,
+						"w": 13,
+						"h": 54
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://free-tex-packer.com",
+		"version": "0.6.7"
+	}
+}
