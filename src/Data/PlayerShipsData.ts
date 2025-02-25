@@ -5,4 +5,5 @@ type PlayerShipsData = {
 type PlayerShipData = {
     movementSpeed: number;
     texture: string;
+    body: ShipBodyData;
 }
