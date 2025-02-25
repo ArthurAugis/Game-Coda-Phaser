@@ -26,8 +26,8 @@ export class MainMenuScene extends Phaser.Scene {
       .text(
         this.cameras.main.centerX,
         this.cameras.main.centerY + 50,
-        `Press SPACE${restartText}`,
-        { color: "#ffffff", fontSize: "32px" }
+        `Press SPACE${restartText} to start the game`,
+        { color: "#ffffff", fontSize: "40px" }
       )
       .setOrigin(0.5);
 
@@ -35,7 +35,7 @@ export class MainMenuScene extends Phaser.Scene {
       this.scene.start("MainGameScene");
     });
 
-    this.input.gamepad?.on("down", (pad, button, index) => {
+    this.input.gamepad?.on("down", (button: Phaser.Input.Gamepad.Button) => {
         console.log("button", button.index);
         if (button.index === 0) {
             this.scene.start("MainGameScene");

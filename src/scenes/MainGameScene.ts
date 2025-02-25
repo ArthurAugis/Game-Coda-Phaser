@@ -106,6 +106,9 @@ export class MainGameScene extends Scene
             if(!this.godmode) {
                 player.destroy();
                 this.scene.start('GameOverScene');
+            } else {
+                player.removeVelocity();
+                this.registry.inc(GameDataKeys.PlayerScore, 1);
             }
         });
 
@@ -114,6 +117,8 @@ export class MainGameScene extends Scene
             if(!this.godmode) {
                 player.destroy();
                 this.scene.start('GameOverScene');
+            } else {
+                player.removeVelocity();
             }
         });
 

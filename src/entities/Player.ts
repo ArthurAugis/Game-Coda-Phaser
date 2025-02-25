@@ -65,7 +65,7 @@ export class Player extends Entity {
             this.selectPlayerShip(3);
         });
 
-        this.scene.input.gamepad?.on("down", (pad, button, index) => {
+        this.scene.input.gamepad?.on("down", (button: Phaser.Input.Gamepad.Button) => {
             if (button.index === 1) {
                 this.selectPlayerShip(1);
             } else if (button.index === 2) {
@@ -85,4 +85,9 @@ export class Player extends Entity {
         this.x = Phaser.Math.Clamp(this.x, this.displayWidth /2, this.scene.cameras.main.width - this.displayWidth / 2);
     }
 
+    public removeVelocity() {
+        this.setVelocity(0, 0);
+    }
+
+    
 }
