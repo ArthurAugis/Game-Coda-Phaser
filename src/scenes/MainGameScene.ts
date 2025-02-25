@@ -142,6 +142,7 @@ export class MainGameScene extends Scene
 
 
     update(_timestamp: number, _delta: number) {
+
         this.bg.tilePositionY -= 0.1 * _delta;
 
         (this.player as Player).update(_timestamp, _delta);

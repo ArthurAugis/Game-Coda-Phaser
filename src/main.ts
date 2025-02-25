@@ -24,6 +24,12 @@ const config: Types.Core.GameConfig = {
     audio : {
         noAudio : false,
     },
+    input: {
+        gamepad: true,
+        keyboard: true,
+        mouse: true,
+        touch: true,
+    },
     fps: { forceSetTimeOut: true, target: 120 },
     scene: [
         MainMenuScene,

@@ -31,8 +31,8 @@ export class Player extends Entity {
         const playerShipsData = this.scene.cache.json.get('playerShips') as PlayerShipsData;
         this.playerShipData = playerShipsData[playerShipDataId];
         this.setTexture('sprites', this.playerShipData.texture);
-        this.setCircle(this.playerShipData.body.radius, this.playerShipData.body.offsetX, this.playerShipData.body.offsetY);
-        this.arcadebody.updateCenter()
+        // this.setCircle(this.playerShipData.body.radius, this.playerShipData.body.offsetX, this.playerShipData.body.offsetY);
+        // this.arcadebody.updateCenter()
     }
 
     public update(timeSinceLaunch: number, delta: number) {
@@ -40,17 +40,17 @@ export class Player extends Entity {
         if(!this.active) { return; }
 
         if(this.playerShipData) {
-            if(this.cursorKeys.left.isDown) {
+            if(this.cursorKeys.left.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x < -0.1) {
                 this.x -= this.playerShipData.movementSpeed * delta;
             }
-            else if(this.cursorKeys.right.isDown) {
+            else if(this.cursorKeys.right.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x > 0.1) {
                 this.x += this.playerShipData.movementSpeed * delta;
             }
 
-            if(this.cursorKeys.down.isDown) {
+            if(this.cursorKeys.down.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.y > 0.1) {
                 this.y += this.playerShipData.movementSpeed * delta;
             }
-            else if(this.cursorKeys.up.isDown) {
+            else if(this.cursorKeys.up.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.y < -0.1) {
                 this.y -= this.playerShipData.movementSpeed * delta;
             }
         }
@@ -65,7 +65,19 @@ export class Player extends Entity {
             this.selectPlayerShip(3);
         });
 
-        if(this.cursorKeys.space.isDown && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000) {
+        this.scene.input.gamepad?.on("down", (pad, button, index) => {
+            if (button.index === 1) {
+                this.selectPlayerShip(1);
+            } else if (button.index === 2) {
+                this.selectPlayerShip(2);
+            } else if (button.index === 3) {
+                this.selectPlayerShip(3);
+            }
+        });
+
+        if(this.cursorKeys.space.isDown && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000 ||
+            this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).buttons[0].pressed && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000
+        ) {
             this.getComponent(WeaponComponent)?.shoot(this);
             this.lastShotTime = timeSinceLaunch;
         }
