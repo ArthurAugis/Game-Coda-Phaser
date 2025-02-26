@@ -1,5 +1,7 @@
 import { Entity } from "./Entity.ts"
 import { WeaponComponent } from "../components/WeaponComponent.ts"
+import {Movement} from "../components/Movement.ts";
+import {Health} from "../components/Health.ts";
 
 export class Enemy extends Entity {
     private rateOfFire: number
@@ -18,15 +20,20 @@ export class Enemy extends Entity {
             12,
             0xffe066,
             1024
-        ))
+        ));
+
+        this.addComponent(new Movement(0.2));
+        this.addComponent(new Health(2));
     }
 
-    public update(timeSinceLaunch: number) {
-        if (Math.random() < 0.01 && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000) {
+    protected preUpdate(time: number, delta: number) {
+        super.preUpdate(time, delta);
+        this.getComponent(Movement)?.moveVertically(this, delta);
+        if (Math.random() < 0.01 && time - this.lastShotTime > this.rateOfFire * 1000) {
             this.play('ufoshoot');
             this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
                 this.getComponent(WeaponComponent)?.shoot(this)
-                this.lastShotTime = timeSinceLaunch
+                this.lastShotTime = time
 
                 this.scene.sound.play('laser_Enemy');
             });
@@ -39,11 +46,14 @@ export class Enemy extends Entity {
 
     public enable(x:number, y:number) {
         this.enableBody(true, x, y, true, true);
-        this.arcadebody.setVelocityY(256);
 
         if(this.rotation === 0) {
             this.rotation = 1.57;
         }
+
+        this.getComponent(Health)?.once('death', () => {
+            this.disable();
+        });
 
     }
 }

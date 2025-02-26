@@ -4,6 +4,7 @@ import {GroupUtils} from "../utils/GroupUtils.ts";
 import {Player} from "../entities/Player.ts";
 import {Enemy} from "../entities/Enemy.ts";
 import {GameDataKeys} from "../Data/GameDataKeys.ts";
+import {Health} from "../components/Health.ts";
 
 export class MainGameScene extends Scene
 {
@@ -25,12 +26,44 @@ export class MainGameScene extends Scene
 
     preload ()
     {
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+
+        const progressBar = this.add.graphics();
+        const progressBox = this.add.graphics();
+        const loadingText = this.make.text({
+            x: width / 2,
+            y: height / 2 - 50,
+            text: 'Loading...',
+            style: {
+                font: '40px monospace',
+                color: '#ffffff',
+                align: 'center'
+            }
+        }).setOrigin(0.5);
+        progressBox.fillStyle(0x222222, 0.8);
+        progressBox.fillRect(width / 2 - 160, height / 2 - 30, 320, 50);
+
+        this.load.on('progress', (value: number) => {
+            progressBar.clear();
+            progressBar.fillStyle(0xffffff, 1);
+            progressBar.fillRect(width / 2 - 150, height / 2 - 20, 300 * value, 30);
+            loadingText.setText('Loading...' + Math.round(value * 100) + '%');
+        });
+
+        this.load.on('complete', () => {
+            progressBar.destroy();
+            progressBox.destroy();
+        });
+
+
         this.load.setPath('assets');
         this.load.image('background', 'Backgrounds/darkPurple.png');
         this.load.image('meteor', 'PNG/Meteors/meteorBrown_big1.png');
         this.load.atlas('sprites', 'texture.png', 'texture.json');
         this.load.audio('laser_Enemy', 'Bonus/sfx_laser1.ogg');
         this.load.audio('laser_Player', 'Bonus/sfx_laser2.ogg');
+        this.load.font('font_future', 'Bonus/kenvector_future.ttf');
         this.load.json('playerShips', 'Data/playerShips.json');
     }
 
@@ -97,29 +130,33 @@ export class MainGameScene extends Scene
 
         this.physics.add.collider(this.bullets, this.enemies,(bullet, enemy) => {
             (bullet as Bullet).disable();
-            (enemy as Enemy).disable();
-            this.registry.inc(GameDataKeys.PlayerScore, 1);
+            (enemy as Enemy).getComponent(Health)?.inc(-1);
+            (enemy as Enemy).changeVelocity(0, 0);
+            (enemy as Enemy).getComponent(Health)?.once('death', () => {
+                this.registry.inc(GameDataKeys.PlayerScore, 1);
+            });
         });
 
         this.physics.add.collider(this.player, this.enemies, (player, enemy) => {
-            (enemy as Enemy).disable();
+            (enemy as Enemy).getComponent(Health)?.inc(-1);
             if(!this.godmode) {
-                player.destroy();
-                this.scene.start('GameOverScene');
-            } else {
-                player.removeVelocity();
-                this.registry.inc(GameDataKeys.PlayerScore, 1);
+                (player as Player).getComponent(Health)?.inc(-1);
+                (player as Player).getComponent(Health)?.once('death', () => {
+                    this.scene.start('GameOverScene');
+                });
             }
+            (player as Player).changeVelocity(0, 0);
         });
 
         this.physics.add.collider(this.player, this.enemies_bullets, (player, enemy_bullet) => {
             (enemy_bullet as Bullet).disable();
             if(!this.godmode) {
-                player.destroy();
-                this.scene.start('GameOverScene');
-            } else {
-                player.removeVelocity();
+                (player as Player).getComponent(Health)?.inc(-1);
+                (player as Player).getComponent(Health)?.once('death', () => {
+                    this.scene.start('GameOverScene');
+                });
             }
+            (player as Player).changeVelocity(0, 0);
         });
 
         this.physics.add.collider(this.bullets, this.enemies_bullets, (bullet, enemy_bullet) => {

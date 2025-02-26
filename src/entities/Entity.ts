@@ -13,17 +13,6 @@ export class Entity extends Phaser.Physics.Arcade.Sprite {
         this.arcadebody = this.body as Phaser.Physics.Arcade.Body;
     }
 
-    /*
-    public init(texture: string, frame?: string) {
-        this.arcadebody = this.body as Phaser.Physics.Arcade.Body;
-        this.arcadebody.allowGravity = false;
-        this.arcadebody.setFriction(0, 0);
-
-        this.setTexture(texture, frame);
-    }
-
-     */
-
     public addComponent(component: IComponent) {
         this.components.push(component);
     }
@@ -39,12 +28,16 @@ export class Entity extends Phaser.Physics.Arcade.Sprite {
         this.components = this.components.filter(component => !(component instanceof componentType));
     }
 
-    public getComponent<T extends IComponent>(componentType: new(...args: any[]) => T): T {
+    public getComponent<T extends IComponent>(componentType: new(...args: any[]) => T): T | undefined{
         return this.components.find(component => component instanceof componentType) as T;
     }
 
     public getComponents<T extends IComponent>(componentType: new(...args: any[]) => T): T[] {
         return this.components.filter(component => component instanceof componentType) as T[];
+    }
+
+    public changeVelocity(x: number, y: number) {
+        this.arcadebody.setVelocity(x, y);
     }
 
 }

@@ -18,20 +18,20 @@ export class GameOverScene extends Phaser.Scene {
         }
 
         this.add.text(
-            this.cameras.main.centerX, 
-            this.cameras.main.centerY + 100, 
-            `Press SPACE${restartText} to restart`, 
+            this.cameras.main.centerX,
+            this.cameras.main.centerY + 100,
+            `Press SPACE${restartText} to return to the main menu`,
             { color: '#ffffff', fontSize: '32px', fontFamily: 'Arial', fontStyle: 'italic' }
         ).setOrigin(0.5)
 
 
         this.input.keyboard?.on('keydown-SPACE', () => {
-            this.scene.start('MainGameScene');
+            this.scene.start('MainMenuScene');
         });
 
-        this.input.gamepad?.on("down", (pad, button, index) => {
+        this.input.gamepad?.on("down", (button: Phaser.Input.Gamepad.Button) => {
             if (button.index === 0) {
-                this.scene.start("MainGameScene");
+                this.scene.start("MainMenuScene");
             }
         });
     }

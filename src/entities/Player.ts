@@ -1,5 +1,8 @@
 import {Entity} from "./Entity.ts";
 import {WeaponComponent} from "../components/WeaponComponent.ts";
+import {Movement} from "../components/Movement.ts";
+import {GameDataKeys} from "../Data/GameDataKeys.ts";
+import {Health} from "../components/Health.ts";
 
 export class Player extends Entity {
     private readonly rateOfFire: number;
@@ -12,13 +15,15 @@ export class Player extends Entity {
         super(scene, x, y, texture, frame);
 
         this.addComponent(new WeaponComponent(bullets, scene.sound.add('laser_Player'), 4, 12, 0xffe066, 1024));
+        this.addComponent(new Movement(0.2));
+        this.addComponent(new Health(2));
 
         this.lastShotTime = 0;
         this.rateOfFire = 0.5;
 
         this.rotation = -Math.PI / 2;
 
-        this.selectPlayerShip(1);
+        this.selectPlayerShip(this.scene.registry.get(GameDataKeys.PlayerShip));
 
         if (scene.input.keyboard) {
             this.cursorKeys = scene.input.keyboard.createCursorKeys();
@@ -30,6 +35,8 @@ export class Player extends Entity {
     public selectPlayerShip(playerShipDataId: number) {
         const playerShipsData = this.scene.cache.json.get('playerShips') as PlayerShipsData;
         this.playerShipData = playerShipsData[playerShipDataId];
+
+        // console.log(playerShipDataId);
         this.setTexture('sprites', this.playerShipData.texture);
         // this.setCircle(this.playerShipData.body.radius, this.playerShipData.body.offsetX, this.playerShipData.body.offsetY);
         // this.arcadebody.updateCenter()
@@ -39,19 +46,21 @@ export class Player extends Entity {
 
         if(!this.active) { return; }
 
+        this.getComponent(Movement)?.setSpeed(this.playerShipData.movementSpeed);
+
         if(this.playerShipData) {
             if(this.cursorKeys.left.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x < -0.1) {
-                this.x -= this.playerShipData.movementSpeed * delta;
+                this.getComponent(Movement)?.moveHorizontally(this, -delta);
             }
             else if(this.cursorKeys.right.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x > 0.1) {
-                this.x += this.playerShipData.movementSpeed * delta;
+                this.getComponent(Movement)?.moveHorizontally(this, delta);
             }
 
             if(this.cursorKeys.down.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.y > 0.1) {
-                this.y += this.playerShipData.movementSpeed * delta;
+                this.getComponent(Movement)?.moveVertically(this, delta);
             }
             else if(this.cursorKeys.up.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.y < -0.1) {
-                this.y -= this.playerShipData.movementSpeed * delta;
+                this.getComponent(Movement)?.moveVertically(this, -delta);
             }
         }
 
@@ -85,9 +94,5 @@ export class Player extends Entity {
         this.x = Phaser.Math.Clamp(this.x, this.displayWidth /2, this.scene.cameras.main.width - this.displayWidth / 2);
     }
 
-    public removeVelocity() {
-        this.setVelocity(0, 0);
-    }
 
-    
 }
