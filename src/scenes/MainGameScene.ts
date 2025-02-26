@@ -17,6 +17,7 @@ export class MainGameScene extends Scene
     private sprites: Phaser.GameObjects.TileSprite
     private playerShipData: PlayerShipData;
     private godmode: boolean = false;
+    private score_text: Phaser.GameObjects.Text;
 
 
     constructor ()
@@ -72,10 +73,12 @@ export class MainGameScene extends Scene
         const playerShipsData = this.cache.json.get('playerShips') as PlayerShipsData;
         this.playerShipData = playerShipsData["1"];
 
+        this.score_text = this.add.text(this.cameras.main.centerX, 64, 'Score:0', { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5);
+
         this.registry.set<number>(GameDataKeys.PlayerScore, 0);
 
         this.registry.events.on('changedata-' + GameDataKeys.PlayerScore, (_: any, value: number) => {
-            score_text.setText(`Score:${value}`);
+            this.score_text.setText(`Score:${value}`);
         });
 
         this.cameras.main.setBackgroundColor(0x50514f);
@@ -124,9 +127,6 @@ export class MainGameScene extends Scene
 
         this.player = new Player(this, this.cameras.main.centerX, this.cameras.main.height - 128, 'sprites', this.playerShipData.texture, this.bullets);
         this.physics.add.existing(this.player);
-
-        const score_text = this.add.text(this.cameras.main.centerX, 64, 'Score:0', { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5);
-
 
         this.physics.add.collider(this.bullets, this.enemies,(bullet, enemy) => {
             (bullet as Bullet).disable();

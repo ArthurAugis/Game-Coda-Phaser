@@ -46,13 +46,10 @@ export class MainMenuScene extends Phaser.Scene {
         this.load.atlas('sprites', 'texture.png', 'texture.json');
         this.load.json('playerShips', 'Data/playerShips.json');
         this.load.font('font_future', 'Bonus/kenvector_future.ttf');
-
-        if (!this.registry.has(GameDataKeys.PlayerShip)) {
-            this.registry.set(GameDataKeys.PlayerShip, "1");
-        }
     }
 
     create() {
+        this.ships = [];
         this.background = this.add.tileSprite(0, 0, 1080, 1920, "background").setOrigin(0, 0).setTileScale(2);
 
         this.add
@@ -74,12 +71,11 @@ export class MainMenuScene extends Phaser.Scene {
             this.ships.push(ship);
         });
 
-        console.log("Selected ship index");
-        console.log(this.selectedShipIndex);
-        console.log("Ship keys");
-        console.log(shipKeys);
-        console.log("Player ship");
-        console.log(this.registry.get(GameDataKeys.PlayerShip));
+        if(this.registry.has(GameDataKeys.PlayerShip)) {
+            this.updateAlreadySelectedShip();
+        } else {
+            this.updateShipPositions();
+        }
 
         const gamepad = this.input.gamepad?.getPad(0);
         let restartText = "";
@@ -125,5 +121,14 @@ export class MainMenuScene extends Phaser.Scene {
             ship.setScale(offset === 0 ? 2 : 0.8);
             ship.setDepth(offset === 0 ? 1 : 0.5);
         });
+    }
+
+    private updateAlreadySelectedShip() {
+        this.ships.forEach((ship, index) => {
+            if (index.toString() === this.registry.get(GameDataKeys.PlayerShip)) {
+                this.selectedShipIndex = index - 1;
+            }
+        });
+        this.updateShipPositions();
     }
 }
