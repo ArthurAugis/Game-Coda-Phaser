@@ -2,6 +2,8 @@ import { Entity } from "./Entity.ts"
 import { WeaponComponent } from "../components/WeaponComponent.ts"
 import {Movement} from "../components/Movement.ts";
 import {Health} from "../components/Health.ts";
+import { PowerUp } from "./PowerUp.ts";
+import {MainGameScene} from "../scenes/MainGameScene.ts";
 
 export class Enemy extends Entity {
     private rateOfFire: number
@@ -55,5 +57,15 @@ export class Enemy extends Entity {
             this.disable();
         });
 
+    }
+
+    public dropPowerUp() {
+        console.log('dropPowerUp');
+        if (Math.random() < 0.2) {
+            const type = Math.random() < 0.5 ? 'health' : 'speed';
+            const powerUp = new PowerUp(this.scene, this.x, this.y, 'sprites', "star_gold.png", type);
+            this.scene.physics.add.existing(powerUp);
+            (this.scene as MainGameScene).addPowerUpToList(powerUp);
+        }
     }
 }

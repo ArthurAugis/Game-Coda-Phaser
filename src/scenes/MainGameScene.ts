@@ -5,6 +5,7 @@ import {Player} from "../entities/Player.ts";
 import {Enemy} from "../entities/Enemy.ts";
 import {GameDataKeys} from "../Data/GameDataKeys.ts";
 import {Health} from "../components/Health.ts";
+import { PowerUp } from "../entities/PowerUp.ts";
 
 export class MainGameScene extends Scene
 {
@@ -18,6 +19,7 @@ export class MainGameScene extends Scene
     private playerShipData: PlayerShipData;
     private godmode: boolean = false;
     private score_text: Phaser.GameObjects.Text;
+    private powerUps: Phaser.Physics.Arcade.Group;
 
 
     constructor ()
@@ -60,7 +62,6 @@ export class MainGameScene extends Scene
 
         this.load.setPath('assets');
         this.load.image('background', 'Backgrounds/darkPurple.png');
-        this.load.image('meteor', 'PNG/Meteors/meteorBrown_big1.png');
         this.load.atlas('sprites', 'texture.png', 'texture.json');
         this.load.audio('laser_Enemy', 'Bonus/sfx_laser1.ogg');
         this.load.audio('laser_Player', 'Bonus/sfx_laser2.ogg');
@@ -73,7 +74,7 @@ export class MainGameScene extends Scene
         const playerShipsData = this.cache.json.get('playerShips') as PlayerShipsData;
         this.playerShipData = playerShipsData["1"];
 
-        this.score_text = this.add.text(this.cameras.main.centerX, 64, 'Score:0', { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5);
+        this.score_text = this.add.text(this.cameras.main.centerX, 64, 'Score:0', { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5).setDepth(1000);
 
         this.registry.set<number>(GameDataKeys.PlayerScore, 0);
 
@@ -88,8 +89,8 @@ export class MainGameScene extends Scene
             key: 'ufoshoot',
             frames: [
                 {key: 'sprites', frame: 'ufoRed.png'},
-                {key: 'sprites', frame: 'enemy_2.png'},
-                {key: 'sprites', frame: 'enemy_3.png'},
+                {key: 'sprites', frame: 'ufoRed-shoot0.png'},
+                {key: 'sprites', frame: 'ufoRed-shoot1.png'},
             ],
             frameRate: 4,
         })
@@ -103,6 +104,7 @@ export class MainGameScene extends Scene
             runChildUpdate: true
         })
         GroupUtils.preallocateGroup(this.bullets, 100);
+
         this.enemies_bullets = this.physics.add.group({
             classType: Bullet,
             createCallback: (bullet) => {
@@ -125,6 +127,11 @@ export class MainGameScene extends Scene
         });
         GroupUtils.preallocateGroup(this.enemies, 100);
 
+        this.powerUps = this.physics.add.group({
+            classType: PowerUp,
+            runChildUpdate: true
+        });
+
         this.player = new Player(this, this.cameras.main.centerX, this.cameras.main.height - 128, 'sprites', this.playerShipData.texture, this.bullets);
         this.physics.add.existing(this.player);
 
@@ -133,7 +140,8 @@ export class MainGameScene extends Scene
             (enemy as Enemy).getComponent(Health)?.inc(-1);
             (enemy as Enemy).changeVelocity(0, 0);
             (enemy as Enemy).getComponent(Health)?.once('death', () => {
-                this.registry.inc(GameDataKeys.PlayerScore, 1);
+                (enemy as Enemy).scene.registry.inc(GameDataKeys.PlayerScore, 1);
+                (enemy as Enemy).dropPowerUp();
             });
         });
 
@@ -162,7 +170,13 @@ export class MainGameScene extends Scene
         this.physics.add.collider(this.bullets, this.enemies_bullets, (bullet, enemy_bullet) => {
             (bullet as Bullet).disable();
             (enemy_bullet as Bullet).disable();
-        })
+        });
+
+        this.physics.add.collider(this.player, this.powerUps, (player, powerUp) => {
+            (powerUp as PowerUp).applyEffect(player as Player);
+        });
+
+
 
         this.time.addEvent({
             delay: 1500,
@@ -182,6 +196,9 @@ export class MainGameScene extends Scene
         }
     }
 
+    public addPowerUpToList(powerUp: PowerUp) {
+        this.powerUps.add(powerUp);
+    }
 
     update(_timestamp: number, _delta: number) {
 

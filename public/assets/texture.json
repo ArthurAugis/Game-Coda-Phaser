@@ -73,7 +73,7 @@
 					}
 				},
 				{
-					"filename": "enemy_2.png",
+					"filename": "ufoRed-shoot0.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -94,7 +94,7 @@
 					}
 				},
 				{
-					"filename": "enemy_3.png",
+					"filename": "ufoRed-shoot1.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -133,6 +133,27 @@
 						"y": 91,
 						"w": 91,
 						"h": 91
+					}
+				},
+				{
+					"filename": "star_gold.png",
+					"rotated": true,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 31,
+						"h": 30
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 31,
+						"h": 30
+					},
+					"frame": {
+						"x": 75,
+						"y": 182,
+						"w": 31,
+						"h": 30
 					}
 				}
 			]
