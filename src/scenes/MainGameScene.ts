@@ -17,7 +17,7 @@ export class MainGameScene extends Scene
     private bg: Phaser.GameObjects.TileSprite
     private sprites: Phaser.GameObjects.TileSprite
     private playerShipData: PlayerShipData;
-    private godmode: boolean = false;
+    private godmode: boolean = true;
     private score_text: Phaser.GameObjects.Text;
     private powerUps: Phaser.Physics.Arcade.Group;
 
@@ -89,8 +89,8 @@ export class MainGameScene extends Scene
             key: 'ufoshoot',
             frames: [
                 {key: 'sprites', frame: 'ufoRed.png'},
-                {key: 'sprites', frame: 'ufoRed-shoot0.png'},
-                {key: 'sprites', frame: 'ufoRed-shoot1.png'},
+                {key: 'sprites', frame: 'enemy_3.png'},
+                {key: 'sprites', frame: 'enemy_2.png'},
             ],
             frameRate: 4,
         })
@@ -179,7 +179,7 @@ export class MainGameScene extends Scene
 
 
         this.time.addEvent({
-            delay: 1500,
+            delay: 100,
             callback: this.spawnEnemy,
             callbackScope: this,
             loop: true
@@ -189,7 +189,7 @@ export class MainGameScene extends Scene
     }
 
     private spawnEnemy() {
-        if(this.enemies.countActive() >= 10) { return; }
+        if(this.enemies.countActive() >= 100) { return; }
         let enemy = this.enemies.get() as Enemy;
         if(enemy) {
             enemy.enable(Phaser.Math.Between(32, this.cameras.main.width - 32), -32);

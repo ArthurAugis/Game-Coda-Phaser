@@ -12,6 +12,7 @@ export class Movement implements IComponent {
 
     public setSpeed(speed: number) {
         this.speed = speed;
+        console.log(this.speed);
     }
 
     public getSpeed() {

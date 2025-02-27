@@ -73,7 +73,7 @@
 					}
 				},
 				{
-					"filename": "ufoRed-shoot0.png",
+					"filename": "enemy_2.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -94,7 +94,7 @@
 					}
 				},
 				{
-					"filename": "ufoRed-shoot1.png",
+					"filename": "enemy_3.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -136,8 +136,29 @@
 					}
 				},
 				{
+					"filename": "powerupGreen_bolt.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 34,
+						"h": 33
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 34,
+						"h": 33
+					},
+					"frame": {
+						"x": 75,
+						"y": 182,
+						"w": 34,
+						"h": 33
+					}
+				},
+				{
 					"filename": "star_gold.png",
-					"rotated": true,
+					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
 						"w": 31,
@@ -151,8 +172,29 @@
 					},
 					"frame": {
 						"x": 75,
-						"y": 182,
+						"y": 215,
 						"w": 31,
+						"h": 30
+					}
+				},
+				{
+					"filename": "heart.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 34,
+						"h": 34
+					},
+					"spriteSourceSize": {
+						"x": 2,
+						"y": 2,
+						"w": 30,
+						"h": 30
+					},
+					"frame": {
+						"x": 75,
+						"y": 245,
+						"w": 30,
 						"h": 30
 					}
 				}

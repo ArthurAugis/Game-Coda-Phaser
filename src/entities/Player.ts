@@ -35,18 +35,13 @@ export class Player extends Entity {
     public selectPlayerShip(playerShipDataId: number) {
         const playerShipsData = this.scene.cache.json.get('playerShips') as PlayerShipsData;
         this.playerShipData = playerShipsData[playerShipDataId];
-
-        // console.log(playerShipDataId);
+        this.getComponent(Movement)?.setSpeed(this.playerShipData.movementSpeed);
         this.setTexture('sprites', this.playerShipData.texture);
-        // this.setCircle(this.playerShipData.body.radius, this.playerShipData.body.offsetX, this.playerShipData.body.offsetY);
-        // this.arcadebody.updateCenter()
     }
 
     public update(timeSinceLaunch: number, delta: number) {
 
         if(!this.active) { return; }
-
-        this.getComponent(Movement)?.setSpeed(this.playerShipData.movementSpeed);
 
         if(this.playerShipData) {
             if(this.cursorKeys.left.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x < -0.1) {
@@ -63,26 +58,6 @@ export class Player extends Entity {
                 this.getComponent(Movement)?.moveVertically(this, -delta);
             }
         }
-
-        this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ONE).on('down', () =>{
-            this.selectPlayerShip(1);
-        });
-        this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.TWO).on('down', () =>{
-            this.selectPlayerShip(2);
-        });
-        this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.THREE).on('down', () =>{
-            this.selectPlayerShip(3);
-        });
-
-        this.scene.input.gamepad?.on("down", (button: Phaser.Input.Gamepad.Button) => {
-            if (button.index === 1) {
-                this.selectPlayerShip(1);
-            } else if (button.index === 2) {
-                this.selectPlayerShip(2);
-            } else if (button.index === 3) {
-                this.selectPlayerShip(3);
-            }
-        });
 
         if(this.cursorKeys.space.isDown && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000 ||
             this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).buttons[0].pressed && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000
