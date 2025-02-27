@@ -44,23 +44,23 @@ export class Player extends Entity {
         if(!this.active) { return; }
 
         if(this.playerShipData) {
-            if(this.cursorKeys.left.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x < -0.1) {
+            if(this.cursorKeys.left.isDown || this.scene.input.gamepad?.gamepads[0] && this.scene.input.gamepad?.gamepads[0].leftStick.x < -0.1) {
                 this.getComponent(Movement)?.moveHorizontally(this, -delta);
             }
-            else if(this.cursorKeys.right.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.x > 0.1) {
+            else if(this.cursorKeys.right.isDown || this.scene.input.gamepad?.gamepads[0] && this.scene.input.gamepad?.gamepads[0].leftStick.x > 0.1) {
                 this.getComponent(Movement)?.moveHorizontally(this, delta);
             }
 
-            if(this.cursorKeys.down.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.y > 0.1) {
+            if(this.cursorKeys.down.isDown || this.scene.input.gamepad?.gamepads[0] && this.scene.input.gamepad?.gamepads[0].leftStick.y > 0.1) {
                 this.getComponent(Movement)?.moveVertically(this, delta);
             }
-            else if(this.cursorKeys.up.isDown || this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).leftStick.y < -0.1) {
+            else if(this.cursorKeys.up.isDown || this.scene.input.gamepad?.gamepads[0] && this.scene.input.gamepad?.gamepads[0].leftStick.y < -0.1) {
                 this.getComponent(Movement)?.moveVertically(this, -delta);
             }
         }
 
         if(this.cursorKeys.space.isDown && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000 ||
-            this.scene.input.gamepad!.getPad(0) && this.scene.input.gamepad!.getPad(0).buttons[0].pressed && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000
+            this.scene.input.gamepad?.gamepads[0] && this.scene.input.gamepad?.gamepads[0].buttons[0].pressed && timeSinceLaunch - this.lastShotTime > this.rateOfFire * 1000
         ) {
             this.getComponent(WeaponComponent)?.shoot(this);
             this.lastShotTime = timeSinceLaunch;

@@ -1,6 +1,9 @@
 import {GameDataKeys} from "../Data/GameDataKeys.ts";
 
 export class GameOverScene extends Phaser.Scene {
+
+    private menuMessage: Phaser.GameObjects.Text;
+
     constructor() {
         super('GameOverScene');
     }
@@ -13,11 +16,11 @@ export class GameOverScene extends Phaser.Scene {
         const gamepad = this.input.gamepad?.getPad(0)
         let restartText = ""
         if (gamepad) {
-            let buttonName = "A (Xbox)"
+            let buttonName = "A"
             restartText = ` or ${buttonName}`
         }
 
-        this.add.text(
+        this.menuMessage = this.add.text(
             this.cameras.main.centerX,
             this.cameras.main.centerY + 100,
             `Press SPACE${restartText} to return to the main menu`,
@@ -34,5 +37,13 @@ export class GameOverScene extends Phaser.Scene {
                 this.scene.start("MainMenuScene");
             }
         });
+    }
+
+    update() {
+        if (this.input.gamepad?.gamepads[0]) {
+            this.menuMessage.setText(`Press SPACE or A to start the game`);
+        } else {
+            this.menuMessage.setText(`Press SPACE to start the game`);
+        }
     }
 }

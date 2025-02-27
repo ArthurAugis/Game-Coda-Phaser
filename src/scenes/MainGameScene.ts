@@ -260,7 +260,6 @@ export class MainGameScene extends Scene
     }
 
     update(_timestamp: number, _delta: number) {
-
         const score = this.registry.get(GameDataKeys.PlayerScore);
         const newLevel = Math.floor(score / 10) + 1;
         if (newLevel > this.level) {
