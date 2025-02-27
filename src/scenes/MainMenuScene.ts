@@ -9,6 +9,7 @@ export class MainMenuScene extends Phaser.Scene {
     private background: Phaser.GameObjects.TileSprite;
     private ships: Phaser.GameObjects.Image[] = [];
     private selectedShipIndex: number = 0;
+    private startMessage: Phaser.GameObjects.Text;
 
     preload() {
         const width = this.cameras.main.width;
@@ -73,7 +74,7 @@ export class MainMenuScene extends Phaser.Scene {
             this.ships.push(ship);
         });
 
-        if(this.registry.has(GameDataKeys.PlayerShip)) {
+        if (this.registry.has(GameDataKeys.PlayerShip)) {
             this.updateAlreadySelectedShip();
         } else {
             this.updateShipPositions();
@@ -82,11 +83,18 @@ export class MainMenuScene extends Phaser.Scene {
         const gamepad = this.input.gamepad?.getPad(0);
         let restartText = "";
         if (gamepad) {
-            let buttonName = "A (Xbox)";
+            let buttonName = "A";
             restartText = ` or ${buttonName}`;
         }
 
-        this.add
+        this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.height - 350,
+            "Controls:\n- Arrows or Left Stick to move\n- SPACE or B (Xbox) to shoot",
+            { color: "#ffffff", fontSize: "36px", fontFamily: "font_future", align: "center" }
+        ).setOrigin(0.5);
+
+        this.startMessage = this.add
             .text(
                 this.cameras.main.centerX,
                 this.cameras.main.height - 150,
@@ -100,6 +108,13 @@ export class MainMenuScene extends Phaser.Scene {
             this.scene.start("MainGameScene");
         });
 
+        this.input.gamepad?.on("down", (button: Phaser.Input.Gamepad.Button) => {
+            if (button.index === 0) {
+                this.registry.set(GameDataKeys.PlayerShip, shipKeys[this.selectedShipIndex]);
+                this.scene.start("MainGameScene");
+            }
+        });
+
         this.input.keyboard?.on("keydown-RIGHT", () => {
             this.cycleShips(1);
         });
@@ -108,6 +123,7 @@ export class MainMenuScene extends Phaser.Scene {
             this.cycleShips(-1);
         });
     }
+
 
 
     private cycleShips(direction: number) {
@@ -132,5 +148,21 @@ export class MainMenuScene extends Phaser.Scene {
             }
         });
         this.updateShipPositions();
+    }
+
+    update() {
+        if(this.input.gamepad?.gamepads[0]) {
+            this.startMessage.setText(`Press SPACE or A to start the game`);
+        } else {
+            this.startMessage.setText(`Press SPACE to start the game`);
+        }
+
+        if(this.input.gamepad?.gamepads[0] && this.input.gamepad?.gamepads[0].leftStick.x < -0.1) {
+            this.cycleShips(-1)
+        }
+
+        if(this.input.gamepad?.gamepads[0] && this.input.gamepad?.gamepads[0].leftStick.x > 0.1) {
+            this.cycleShips(1)
+        }
     }
 }
