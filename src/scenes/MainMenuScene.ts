@@ -46,6 +46,8 @@ export class MainMenuScene extends Phaser.Scene {
         this.load.atlas('sprites', 'texture.png', 'texture.json');
         this.load.json('playerShips', 'Data/playerShips.json');
         this.load.font('font_future', 'Bonus/kenvector_future.ttf');
+        this.load.audio('laser_Enemy', 'Bonus/sfx_laser1.ogg');
+        this.load.audio('laser_Player', 'Bonus/sfx_laser2.ogg');
     }
 
     create() {

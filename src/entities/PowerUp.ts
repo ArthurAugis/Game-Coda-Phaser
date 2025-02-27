@@ -7,6 +7,9 @@ interface BonusDisplay {
     icon: Phaser.GameObjects.Image;
     text: Phaser.GameObjects.Text;
     timerEvent: Phaser.Time.TimerEvent;
+    resetSpeedCall?: Phaser.Time.TimerEvent;
+    baseSpeed?: number;
+    movement?: Movement;
 }
 
 export class PowerUp extends Entity {
@@ -33,18 +36,18 @@ export class PowerUp extends Entity {
         const sceneKey = this.scene.sys.settings.key;
         if (this.type === 'health') {
             player.getComponent(Health)?.inc(1);
-            PowerUp.addBonusDisplay(this.scene, 'health');
+            PowerUp.addBonusDisplay(this.scene, 'health', 3000);
         } else if (this.type === 'speed') {
             const movement = player.getComponent(Movement);
             if (movement) {
-                const originalSpeed = movement.getSpeed();
-                player.getComponent(Movement)?.setSpeed(originalSpeed * 2);
-                PowerUp.addBonusDisplay(this.scene, 'speed', 15000);
-                this.scene.time.delayedCall(15000, () => {
-                    if (player.active) {
-                        player.getComponent(Movement)?.setSpeed(originalSpeed);
-                    }
-                });
+                const displays = PowerUp.getDisplays(this.scene);
+                if (!displays['speed']) {
+                    const baseSpeed = movement.getSpeed();
+                    movement.setSpeed(baseSpeed * 2);
+                    PowerUp.addBonusDisplay(this.scene, 'speed', 15000, baseSpeed, movement);
+                } else {
+                    PowerUp.addBonusDisplay(this.scene, 'speed', 15000);
+                }
             }
         }
         this.destroy();
@@ -81,6 +84,9 @@ export class PowerUp extends Entity {
     private static removeBonusDisplay(scene: Phaser.Scene, type: 'health' | 'speed') {
         const displays = this.getDisplays(scene);
         if (displays[type]) {
+            if (displays[type]!.resetSpeedCall) {
+                displays[type]!.resetSpeedCall.remove(false);
+            }
             displays[type]!.icon.destroy();
             displays[type]!.text.destroy();
             delete displays[type];
@@ -88,19 +94,40 @@ export class PowerUp extends Entity {
         }
     }
 
-    private static addBonusDisplay(scene: Phaser.Scene, type: 'health' | 'speed', duration?: number) {
+    private static addBonusDisplay(
+        scene: Phaser.Scene,
+        type: 'health' | 'speed',
+        duration?: number,
+        baseSpeed?: number,
+        movement?: Movement
+    ) {
         const displays = this.getDisplays(scene);
         const iconConfig = this.iconConfigs[type];
-        if (displays[type] && displays[type].icon && displays[type].icon.active) {
-            if (type === 'health') {
+
+        if (type === 'health') {
+            if (displays[type] && displays[type].icon && displays[type].icon.active) {
                 let count = parseInt(displays[type]!.text.text.replace('+', ''));
                 count++;
                 displays[type]!.text.setText("+" + count.toString());
                 displays[type]!.timerEvent.remove(false);
-                displays[type]!.timerEvent = scene.time.delayedCall(3000, () => {
+                displays[type]!.timerEvent = scene.time.delayedCall(duration || 3000, () => {
                     PowerUp.removeBonusDisplay(scene, 'health');
                 });
-            } else if (type === 'speed') {
+            } else {
+                const index = Object.keys(displays).length;
+                const x = 10;
+                const y = 10 + index * 40;
+                const icon = scene.add.image(x, y, iconConfig.key, iconConfig.frame).setOrigin(0, 0);
+                const text = scene.add.text(x + icon.width + 5, y, '', { font: '32px Arial', color: '#fff' });
+                text.setText("+1");
+                const timerEvent = scene.time.delayedCall(duration || 3000, () => {
+                    PowerUp.removeBonusDisplay(scene, 'health');
+                });
+                displays[type] = { icon, text, timerEvent };
+                this.repositionDisplays(scene);
+            }
+        } else if (type === 'speed') {
+            if (displays[type] && displays[type].icon && displays[type].icon.active) {
                 displays[type]!.timerEvent.remove(false);
                 const timeMs = duration || 15000;
                 let countdown = timeMs / 1000;
@@ -111,32 +138,30 @@ export class PowerUp extends Entity {
                     repeat: countdown - 1,
                     callback: () => {
                         countdown--;
-                        const currentDisplay = PowerUp.getDisplays(scene)[type];
+                        const currentDisplay = PowerUp.getDisplays(scene)['speed'];
                         if (!currentDisplay || !currentDisplay.text.active) {
                             timerEvent.remove();
                             return;
                         }
                         currentDisplay.text.setText(countdown.toString());
-                        if (countdown <= 0) {
-                            PowerUp.removeBonusDisplay(scene, 'speed');
-                        }
                     }
                 });
                 displays[type]!.timerEvent = timerEvent;
-            }
-        } else {
-            const index = Object.keys(displays).length;
-            const x = 10;
-            const y = 10 + index * 40;
-            const icon = scene.add.image(x, y, iconConfig.key, iconConfig.frame).setOrigin(0, 0);
-            const text = scene.add.text(x + icon.width + 5, y, '', { font: '32px Arial', color: '#fff' });
-            if (type === 'health') {
-                text.setText("+1");
-                const timerEvent = scene.time.delayedCall(3000, () => {
-                    PowerUp.removeBonusDisplay(scene, 'health');
+                if (displays[type]!.resetSpeedCall) {
+                    displays[type]!.resetSpeedCall.remove(false);
+                }
+                displays[type]!.resetSpeedCall = scene.time.delayedCall(duration || 15000, () => {
+                    if (displays['speed'] && displays['speed']!.movement && displays['speed']!.baseSpeed !== undefined) {
+                        displays['speed']!.movement.setSpeed(displays['speed']!.baseSpeed);
+                    }
+                    PowerUp.removeBonusDisplay(scene, 'speed');
                 });
-                displays[type] = { icon, text, timerEvent };
-            } else if (type === 'speed') {
+            } else {
+                const index = Object.keys(displays).length;
+                const x = 10;
+                const y = 10 + index * 40;
+                const icon = scene.add.image(x, y, iconConfig.key, iconConfig.frame).setOrigin(0, 0);
+                const text = scene.add.text(x + icon.width + 5, y, '', { font: '32px Arial', color: '#fff' });
                 const timeMs = duration || 15000;
                 let countdown = timeMs / 1000;
                 text.setText(countdown.toString());
@@ -146,20 +171,23 @@ export class PowerUp extends Entity {
                     repeat: countdown - 1,
                     callback: () => {
                         countdown--;
-                        const currentDisplay = PowerUp.getDisplays(scene)[type];
+                        const currentDisplay = PowerUp.getDisplays(scene)['speed'];
                         if (!currentDisplay || !currentDisplay.text.active) {
                             timerEvent.remove();
                             return;
                         }
                         currentDisplay.text.setText(countdown.toString());
-                        if (countdown <= 0) {
-                            PowerUp.removeBonusDisplay(scene, 'speed');
-                        }
                     }
                 });
-                displays[type] = { icon, text, timerEvent };
+                const resetSpeedCall = scene.time.delayedCall(duration || 15000, () => {
+                    if (displays['speed'] && displays['speed']!.movement && displays['speed']!.baseSpeed !== undefined) {
+                        displays['speed']!.movement.setSpeed(displays['speed']!.baseSpeed);
+                    }
+                    PowerUp.removeBonusDisplay(scene, 'speed');
+                });
+                displays[type] = { icon, text, timerEvent, resetSpeedCall, baseSpeed, movement };
+                this.repositionDisplays(scene);
             }
-            this.repositionDisplays(scene);
         }
     }
 }
