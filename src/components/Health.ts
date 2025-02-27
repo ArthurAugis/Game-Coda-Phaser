@@ -25,4 +25,13 @@ export class Health extends Phaser.Events.EventEmitter implements IComponent {
             this.emit('death');
         }
     }
+
+    public set(value: number): void {
+        this.value = value;
+        this.emit("change", this.value);
+
+        if(this.value <= 0) {
+            this.emit('death');
+        }
+    }
 }
