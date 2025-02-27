@@ -6,6 +6,8 @@ import {Enemy} from "../entities/Enemy.ts";
 import {GameDataKeys} from "../Data/GameDataKeys.ts";
 import {Health} from "../components/Health.ts";
 import { PowerUp } from "../entities/PowerUp.ts";
+import {Boss} from "../entities/Boss.ts";
+import {Movement} from "../components/Movement.ts";
 
 export class MainGameScene extends Scene
 {
@@ -13,13 +15,17 @@ export class MainGameScene extends Scene
     private player: Phaser.GameObjects.Image;
     private bullets: Phaser.Physics.Arcade.Group;
     private enemies: Phaser.Physics.Arcade.Group;
+    private bosses: Phaser.Physics.Arcade.Group;
     private enemies_bullets: Phaser.Physics.Arcade.Group;
     private bg: Phaser.GameObjects.TileSprite
     private sprites: Phaser.GameObjects.TileSprite
     private playerShipData: PlayerShipData;
-    private godmode: boolean = true;
+    private godmode: boolean = false;
     private score_text: Phaser.GameObjects.Text;
     private powerUps: Phaser.Physics.Arcade.Group;
+    private level: number = 0;
+    private spawnRate: number = 1500;
+    private bossLevel: number = 10;
 
 
     constructor ()
@@ -58,15 +64,6 @@ export class MainGameScene extends Scene
             progressBar.destroy();
             progressBox.destroy();
         });
-
-
-        this.load.setPath('assets');
-        this.load.image('background', 'Backgrounds/darkPurple.png');
-        this.load.atlas('sprites', 'texture.png', 'texture.json');
-        this.load.audio('laser_Enemy', 'Bonus/sfx_laser1.ogg');
-        this.load.audio('laser_Player', 'Bonus/sfx_laser2.ogg');
-        this.load.font('font_future', 'Bonus/kenvector_future.ttf');
-        this.load.json('playerShips', 'Data/playerShips.json');
     }
 
     create ()
@@ -74,12 +71,17 @@ export class MainGameScene extends Scene
         const playerShipsData = this.cache.json.get('playerShips') as PlayerShipsData;
         this.playerShipData = playerShipsData["1"];
 
-        this.score_text = this.add.text(this.cameras.main.centerX, 64, 'Score:0', { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5).setDepth(1000);
-
         this.registry.set<number>(GameDataKeys.PlayerScore, 0);
 
+        this.level = this.registry.get(GameDataKeys.PlayerScore) / 10 + 1;
+
+        this.score_text = this.add.text(this.cameras.main.centerX, 64, `Score:${this.registry.get(GameDataKeys.PlayerScore)} | Level:${this.level}`, { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5).setDepth(1000);
+
         this.registry.events.on('changedata-' + GameDataKeys.PlayerScore, (_: any, value: number) => {
-            this.score_text.setText(`Score:${value}`);
+            this.score_text.setText(`Score:${value} | Level:${this.level}`);
+            if(this.level % this.bossLevel === 0) {
+                this.score_text.setText(`Score:${value} | Level:${this.level} | Boss Level`);
+            }
         });
 
         this.cameras.main.setBackgroundColor(0x50514f);
@@ -127,6 +129,18 @@ export class MainGameScene extends Scene
         });
         GroupUtils.preallocateGroup(this.enemies, 100);
 
+        this.bosses = this.physics.add.group({
+            classType: Boss,
+            defaultKey: 'sprites',
+            defaultFrame: 'boss.png',
+            createCallback: (boss) => {
+                (boss as Boss).init(this.enemies_bullets);
+            },
+            maxSize: 500,
+            runChildUpdate: true
+        });
+        GroupUtils.preallocateGroup(this.bosses, 5);
+
         this.powerUps = this.physics.add.group({
             classType: PowerUp,
             runChildUpdate: true
@@ -139,14 +153,51 @@ export class MainGameScene extends Scene
             (bullet as Bullet).disable();
             (enemy as Enemy).getComponent(Health)?.inc(-1);
             (enemy as Enemy).changeVelocity(0, 0);
-            (enemy as Enemy).getComponent(Health)?.once('death', () => {
-                (enemy as Enemy).scene.registry.inc(GameDataKeys.PlayerScore, 1);
-                (enemy as Enemy).dropPowerUp();
-            });
+            const bossHealth = (enemy as Enemy).getComponent(Health);
+            if (bossHealth && bossHealth.getValue() <= 1) {
+                (enemy as Enemy).getComponent(Health)?.once('death', () => {
+                    (enemy as Enemy).scene.registry.inc(GameDataKeys.PlayerScore, 1);
+                    (enemy as Enemy).dropPowerUp();
+                });
+            }
+        });
+
+        this.physics.add.collider(this.bullets, this.bosses,(bullet, boss) => {
+            if(this.registry.get(GameDataKeys.BossIsSpawned) === true) {
+                (boss as Boss).getComponent(Health)?.inc(-1);
+                const bossHealth = (boss as Boss).getComponent(Health);
+                if (bossHealth && bossHealth.getValue() <= 1) {
+                    (boss as Boss).getComponent(Health)?.on('death', () => {
+                        console.log('boss death');
+                        (boss as Boss).getComponent(Movement)?.setSpeed(0.2);
+                        (boss as Boss).scene.registry.inc(GameDataKeys.PlayerScore, 11);
+                        this.level = Math.floor(this.registry.get(GameDataKeys.PlayerScore) / 10 + 1);
+                        this.score_text.setText(`Score:${this.registry.get(GameDataKeys.PlayerScore)} | Level:${this.level}`);
+                        if(this.level % this.bossLevel === 0) {
+                            this.score_text.setText(`Score:${this.registry.get(GameDataKeys.PlayerScore)} | Level:${this.level} | Boss Level`);
+                        }
+
+                        this.registry.set(GameDataKeys.BossIsSpawned, false);
+                        (boss as Boss).dropPowerUp();
+                    });
+                }
+            }
+
+            (bullet as Bullet).disable();
+            (boss as Boss).changeVelocity(0, 0);
+        });
+
+        this.physics.add.collider(this.player, this.bosses, (player, boss) => {
+            if(!this.godmode) {
+                (player as Player).getComponent(Health)?.inc(-1);
+                (player as Player).getComponent(Health)?.once('death', () => {
+                    this.scene.start('GameOverScene');
+                });
+            }
+            (player as Player).changeVelocity(0, 0);
         });
 
         this.physics.add.collider(this.player, this.enemies, (player, enemy) => {
-            (enemy as Enemy).getComponent(Health)?.inc(-1);
             if(!this.godmode) {
                 (player as Player).getComponent(Health)?.inc(-1);
                 (player as Player).getComponent(Health)?.once('death', () => {
@@ -179,20 +230,28 @@ export class MainGameScene extends Scene
 
 
         this.time.addEvent({
-            delay: 100,
+            delay: this.spawnRate,
             callback: this.spawnEnemy,
             callbackScope: this,
             loop: true
-        })
-
-
+        });
     }
 
     private spawnEnemy() {
-        if(this.enemies.countActive() >= 100) { return; }
-        let enemy = this.enemies.get() as Enemy;
-        if(enemy) {
-            enemy.enable(Phaser.Math.Between(32, this.cameras.main.width - 32), -32);
+        if (this.enemies.countActive() >= 10) { return; }
+        if (this.bosses.countActive() >= 1) { return; }
+        if(this.level % this.bossLevel !== 0) {
+            let enemy = this.enemies.get() as Enemy;
+            if (enemy) {
+                enemy.enable(Phaser.Math.Between(32, this.cameras.main.width - 32), -32);
+                enemy.getComponent(Health)?.set(2);
+            }
+        } else if(this.enemies.countActive() === 0) {
+            let boss = this.bosses.get() as Boss;
+            if (boss) {
+                boss.enable(this.cameras.main.centerX, -32);
+                boss.getComponent(Health)?.set(10);
+            }
         }
     }
 
@@ -201,6 +260,20 @@ export class MainGameScene extends Scene
     }
 
     update(_timestamp: number, _delta: number) {
+
+        const score = this.registry.get(GameDataKeys.PlayerScore);
+        const newLevel = Math.floor(score / 10) + 1;
+        if (newLevel > this.level) {
+            this.level = newLevel;
+            this.spawnRate = this.spawnRate + Phaser.Math.Between(-75, -25);
+            this.time.removeAllEvents();
+            this.time.addEvent({
+                delay: this.spawnRate,
+                callback: this.spawnEnemy,
+                callbackScope: this,
+                loop: true
+            });
+        }
 
         this.bg.tilePositionY -= 0.1 * _delta;
 
@@ -215,6 +288,12 @@ export class MainGameScene extends Scene
         this.enemies.getChildren().forEach(enemy => {
             if((enemy as Phaser.GameObjects.Rectangle).y >= this.cameras.main.height + (enemy as Phaser.GameObjects.Arc).displayHeight) {
                 enemy.destroy();
+            }
+        });
+
+        this.bosses.getChildren().forEach(boss => {
+            if((boss as Phaser.GameObjects.Rectangle).y >= this.cameras.main.height + (boss as Phaser.GameObjects.Arc).displayHeight) {
+                boss.destroy();
             }
         });
 
