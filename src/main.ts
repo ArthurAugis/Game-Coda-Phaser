@@ -23,7 +23,7 @@ const config: Types.Core.GameConfig = {
         }
     },
     audio : {
-        noAudio : true,
+        noAudio : false,
     },
     input: {
         gamepad: true,
