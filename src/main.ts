@@ -2,6 +2,7 @@ import { MainGameScene as MainGame } from './scenes/MainGameScene.ts';
 import { AUTO, Game, Scale,Types } from 'phaser';
 import {MainMenuScene} from "./scenes/MainMenuScene.ts";
 import {GameOverScene} from "./scenes/GameOverScene.ts";
+import {LeaderBoard} from "./scenes/LeaderBoard.ts";
 
 //  Find out more information about the MainGameScene Config at:
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
@@ -34,7 +35,8 @@ const config: Types.Core.GameConfig = {
     scene: [
         MainMenuScene,
         MainGame,
-        GameOverScene
+        GameOverScene,
+        LeaderBoard
     ]
 };
 
