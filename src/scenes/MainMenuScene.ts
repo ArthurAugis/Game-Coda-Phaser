@@ -87,6 +87,17 @@ export class MainMenuScene extends Phaser.Scene {
             restartText = ` or ${buttonName}`;
         }
 
+        const leaderboardButton = this.add.text(
+            this.cameras.main.centerX,
+            this.cameras.main.height - 500,
+            "Leaderboard",
+            { color: "black", backgroundColor:'white', padding: { x: 10, y: 5 } ,fontSize: "40px", fontFamily: "font_future" }
+        ).setOrigin(0.5).setInteractive();
+
+        leaderboardButton.on('pointerdown', () => {
+            this.scene.start("LeaderBoard");
+        });
+
         this.add.text(
             this.cameras.main.centerX,
             this.cameras.main.height - 350,
