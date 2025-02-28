@@ -1,6 +1,5 @@
 import {Entity} from "../entities/Entity.ts";
 import {Bullet} from "../entities/Bullet.ts";
-import {GameDataKeys} from "../Data/GameDataKeys.ts";
 
 export class WeaponComponent implements IComponent {
 
@@ -34,20 +33,27 @@ export class WeaponComponent implements IComponent {
         }
     }
 
-    public randomShoot(entity: Entity) {
-        if(entity.scene.registry.get(GameDataKeys.BossIsSpawned)) {
-            const bullet: Bullet = this.bullets.get() as Bullet;
-            if (bullet) {
-                const angle = Math.random() * Math.PI * 2;
-                const forwardX = Math.cos(angle);
-                const forwardY = Math.sin(angle);
-                const velocityX = forwardX * this.bulletSpeed;
-                const velocityY = forwardY * this.bulletSpeed;
-                bullet.enable(entity.x, entity.y, this.bulletWidth, this.bulletHeight, this.bulletColor, velocityY, velocityX);
-                this.shootSoundKey.play();
-            }
-        }
+    public getBulletSpeed() {
+        return this.bulletSpeed;
     }
+
+    public getBulletWidth() {
+        return this.bulletWidth;
+    }
+
+    public getBulletHeight() {
+        return this.bulletHeight;
+    }
+
+    public getBulletColor() {
+        return this.bulletColor;
+    }
+
+    public getShootSoundKey() {
+        return this.shootSoundKey;
+    }
+
+
 
 
 }

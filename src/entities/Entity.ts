@@ -36,8 +36,24 @@ export class Entity extends Phaser.Physics.Arcade.Sprite {
         return this.components.filter(component => component instanceof componentType) as T[];
     }
 
-    public changeVelocity(x: number, y: number) {
-        this.arcadebody.setVelocity(x, y);
+    public bossMove() {
+        if (this.arcadebody.velocity.x === 0) {
+            this.arcadebody.setVelocityX(100);
+        }
+
+        if (this.x >= 800) {
+            this.arcadebody.setVelocityX(-100);
+        } else if (this.x <= 250) {
+            this.arcadebody.setVelocityX(100);
+        }
+
+        if (this.y >= 600) {
+            this.arcadebody.setVelocityY(-100);
+        } else if (this.y <= 550) {
+            this.arcadebody.setVelocityY(100);
+        }
     }
+
+
 
 }
