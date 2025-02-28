@@ -78,11 +78,16 @@ export class MainGameScene extends Scene
         this.score_text = this.add.text(this.cameras.main.centerX, 64, `Score:${this.registry.get(GameDataKeys.PlayerScore)} | Level:${this.level}`, { font: '48px Arial', color: '#ffffff', align: 'center', backgroundColor: '#000000' }).setOrigin(0.5).setDepth(1000);
 
         this.registry.events.on('changedata-' + GameDataKeys.PlayerScore, (_: any, value: number) => {
-            this.score_text.setText(`Score:${value} | Level:${this.level}`);
+
+            if(this.registry.get(GameDataKeys.PlayerScore) === 0) return;
+
             if(this.level % this.bossLevel === 0) {
                 this.score_text.setText(`Score:${value} | Level:${this.level} | Boss Level`);
+            } else {
+                this.score_text.setText(`Score:${value} | Level:${this.level}`);
             }
         });
+
 
         this.cameras.main.setBackgroundColor(0x50514f);
         this.bg = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'background').setOrigin(0).setTileScale(2);
