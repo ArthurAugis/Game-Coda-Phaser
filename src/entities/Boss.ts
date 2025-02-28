@@ -5,6 +5,7 @@ import {Health} from "../components/Health.ts";
 import { PowerUp } from "./PowerUp.ts";
 import {MainGameScene} from "../scenes/MainGameScene.ts";
 import {GameDataKeys} from "../Data/GameDataKeys.ts";
+import {Bullet} from "./Bullet.ts";
 
 export class Boss extends Entity {
     private rateOfFire: number
@@ -36,12 +37,12 @@ export class Boss extends Entity {
             this.getComponent(Movement)?.setSpeed(0)
             this.scene.registry.set(GameDataKeys.BossIsSpawned, true)
         } else if(this.scene.registry.get(GameDataKeys.BossIsSpawned)) {
-            this.getComponent(Movement)?.bossMove(this, 0)
+            this.bossMove();
         }
 
         this.getComponent(Movement)?.moveVertically(this, delta);
         if (Math.random() < 0.15 && time - this.lastShotTime > this.rateOfFire * 1000) {
-                this.getComponent(WeaponComponent)?.randomShoot(this)
+                this.randomShoot();
                 this.lastShotTime = time
 
                 this.scene.sound.play('laser_Enemy');
@@ -71,6 +72,22 @@ export class Boss extends Entity {
             const powerUp = new PowerUp(this.scene, this.x, this.y, 'sprites', "star_gold.png", type);
             this.scene.physics.add.existing(powerUp);
             (this.scene as MainGameScene).addPowerUpToList(powerUp);
+        }
+    }
+
+    public randomShoot() {
+        if(this.scene.registry.get(GameDataKeys.BossIsSpawned)) {
+            const bullet: Bullet = this.bullets.get() as Bullet;
+            const weaponComponent = this.getComponent(WeaponComponent);
+            if (bullet) {
+                const angle = Math.random() * Math.PI * 2;
+                const forwardX = Math.cos(angle);
+                const forwardY = Math.sin(angle);
+                const velocityX = forwardX * (weaponComponent as WeaponComponent).getBulletSpeed();
+                const velocityY = forwardY * (weaponComponent as WeaponComponent).getBulletSpeed();
+                bullet.enable(this.x, this.y, (weaponComponent as WeaponComponent).getBulletWidth(), (weaponComponent as WeaponComponent).getBulletHeight(), (weaponComponent as WeaponComponent).getBulletColor(), velocityY, velocityX);
+                (weaponComponent as WeaponComponent).getShootSoundKey().play();
+            }
         }
     }
 }

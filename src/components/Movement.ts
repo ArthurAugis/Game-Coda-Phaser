@@ -25,22 +25,4 @@ export class Movement implements IComponent {
     public moveVertically(entity: Entity, delta: number) {
         entity.y += this.speed * delta;
     }
-
-    public bossMove(entity: Entity, delta: number) {
-        if (entity.arcadebody.velocity.x === 0) {
-            entity.arcadebody.setVelocityX(100);
-        }
-
-        if (entity.x >= 800) {
-            entity.arcadebody.setVelocityX(-100);
-        } else if (entity.x <= 250) {
-            entity.arcadebody.setVelocityX(100);
-        }
-
-        if (entity.y >= 600) {
-            entity.arcadebody.setVelocityY(-100);
-        } else if (entity.y <= 550) {
-            entity.arcadebody.setVelocityY(100);
-        }
-    }
 }

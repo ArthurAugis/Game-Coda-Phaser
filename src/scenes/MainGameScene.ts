@@ -154,12 +154,11 @@ export class MainGameScene extends Scene
         this.player = new Player(this, this.cameras.main.centerX, this.cameras.main.height - 128, 'sprites', this.playerShipData.texture, this.bullets);
         this.physics.add.existing(this.player);
 
-        this.physics.add.collider(this.bullets, this.enemies,(bullet, enemy) => {
+        this.physics.add.overlap(this.bullets, this.enemies,(bullet, enemy) => {
             (bullet as Bullet).disable();
             (enemy as Enemy).getComponent(Health)?.inc(-1);
-            (enemy as Enemy).changeVelocity(0, 0);
-            const bossHealth = (enemy as Enemy).getComponent(Health);
-            if (bossHealth && bossHealth.getValue() <= 1) {
+            const ennemyHealth = (enemy as Enemy).getComponent(Health);
+            if (ennemyHealth && ennemyHealth.getValue() <= 1) {
                 (enemy as Enemy).getComponent(Health)?.once('death', () => {
                     (enemy as Enemy).scene.registry.inc(GameDataKeys.PlayerScore, 1);
                     (enemy as Enemy).dropPowerUp();
@@ -167,21 +166,15 @@ export class MainGameScene extends Scene
             }
         });
 
-        this.physics.add.collider(this.bullets, this.bosses,(bullet, boss) => {
+        this.physics.add.overlap(this.bullets, this.bosses,(bullet, boss) => {
             if(this.registry.get(GameDataKeys.BossIsSpawned) === true) {
                 (boss as Boss).getComponent(Health)?.inc(-1);
                 const bossHealth = (boss as Boss).getComponent(Health);
                 if (bossHealth && bossHealth.getValue() <= 1) {
                     (boss as Boss).getComponent(Health)?.on('death', () => {
-                        console.log('boss death');
                         (boss as Boss).getComponent(Movement)?.setSpeed(0.2);
                         (boss as Boss).scene.registry.inc(GameDataKeys.PlayerScore, 11);
                         this.level = Math.floor(this.registry.get(GameDataKeys.PlayerScore) / 10 + 1);
-                        this.score_text.setText(`Score:${this.registry.get(GameDataKeys.PlayerScore)} | Level:${this.level}`);
-                        if(this.level % this.bossLevel === 0) {
-                            this.score_text.setText(`Score:${this.registry.get(GameDataKeys.PlayerScore)} | Level:${this.level} | Boss Level`);
-                        }
-
                         this.registry.set(GameDataKeys.BossIsSpawned, false);
                         (boss as Boss).dropPowerUp();
                     });
@@ -189,30 +182,27 @@ export class MainGameScene extends Scene
             }
 
             (bullet as Bullet).disable();
-            (boss as Boss).changeVelocity(0, 0);
         });
 
-        this.physics.add.collider(this.player, this.bosses, (player, boss) => {
+        this.physics.add.overlap(this.player, this.bosses, (player, boss) => {
             if(!this.godmode) {
                 (player as Player).getComponent(Health)?.inc(-1);
                 (player as Player).getComponent(Health)?.once('death', () => {
                     this.scene.start('GameOverScene');
                 });
             }
-            (player as Player).changeVelocity(0, 0);
         });
 
-        this.physics.add.collider(this.player, this.enemies, (player, enemy) => {
+        this.physics.add.overlap(this.player, this.enemies, (player, enemy) => {
             if(!this.godmode) {
                 (player as Player).getComponent(Health)?.inc(-1);
                 (player as Player).getComponent(Health)?.once('death', () => {
                     this.scene.start('GameOverScene');
                 });
             }
-            (player as Player).changeVelocity(0, 0);
         });
 
-        this.physics.add.collider(this.player, this.enemies_bullets, (player, enemy_bullet) => {
+        this.physics.add.overlap(this.player, this.enemies_bullets, (player, enemy_bullet) => {
             (enemy_bullet as Bullet).disable();
             if(!this.godmode) {
                 (player as Player).getComponent(Health)?.inc(-1);
@@ -220,7 +210,6 @@ export class MainGameScene extends Scene
                     this.scene.start('GameOverScene');
                 });
             }
-            (player as Player).changeVelocity(0, 0);
         });
 
         this.physics.add.collider(this.bullets, this.enemies_bullets, (bullet, enemy_bullet) => {
